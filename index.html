@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PitFall</title>
+    <link rel="icon" href="icon.jpg">
+    <style>
+        *{  margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        body{
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+        }
+        canvas{
+            border: solid white 0.1vw;
+        }
+    </style>
+</head>
+<body>
+    <script src="scripts/GameSettings.js"></script>
+    <script src="scripts/Rect.js"></script>
+    <script src="scripts/Player.js"></script>
+    <script src="scripts/Objects.js"></script>
+    <script src="scripts/Background.js"></script>
+    <script src="scripts/Hud.js"></script>
+
+    <script>
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        document.body.appendChild(canvas);
+        canvas.width = 1500;
+        canvas.height = 900;
+        
+        var player = new Player(100, canvas.height*1/6, 70, 100);
+
+        var floor = new Rect(0, canvas.height*4/6, canvas.width, canvas.height*0.5/6);
+        var floor1 = new Rect(0, canvas.height*4/6, canvas.width/2-50, canvas.height*0.75/6);
+        var floor2 = new Rect(canvas.width/2+50, canvas.height*4/6, canvas.width, canvas.height*0.75/6);
+        var underFloor = new Rect(0, canvas.height*5.90/6, canvas.width, canvas.height/6);
+        var leftWall = new Rect(-25, 0, 25, canvas.height);
+
+        var objs = new Objects();
+        var background = new Background();
+        var hud = new Hud();
+        var FPS = 30;
+        var timer = setInterval(loop, 1000/FPS);
+
+        function loop()
+        {   background.draw();
+            objs.updateRopes(player);
+            
+            background.drawLeaves();
+            hud.draw();
+            objs.updateHoles(player);
+            
+
+            if(keys[82] && player.grappled.boolean) player.grappling();
+            if(keys[32] && player.grappled.boolean) player.ungrappling();
+            if(keys[68] && player.grounded) player.move(-10, 8);
+            if(keys[65] && player.grounded) player.move(-170, 8);
+            if(keys[87] && player.grounded) player.move(-90, 15);
+            player.draw('white');
+
+            player.update([floor, underFloor, leftWall]);
+
+            ctx.fillStyle = 'rgb(188,177,53)';
+            ctx.fillRect(0, canvas.height*4.09/6-2, canvas.width, canvas.height*0.17/6); //groundLine
+            // floor.draw('red')
+            
+            objs.updateObjs(player);
+            if(player.x > canvas.width)
+            {   player.x = 1;
+                player.hitbox.x = 1+player.hitbox.width/2;
+                player.points+=100;
+                background.reDraw();
+                objs.reMake();
+            }
+            // console.log(pla.hitbox.width)
+
+        }
+
+        function morte()
+        {   ctx.font = "40px Arial";
+            ctx.textAlign = "center";
+
+            ctx.fillStyle = "white";
+            ctx.fillText("YOU ARE DEAD", canvas.width/2, canvas.height/2);
+        }
+    </script>
+</body>
+</html>
